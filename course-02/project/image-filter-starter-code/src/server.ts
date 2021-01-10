@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import validator from 'validator';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 (async () => {
@@ -16,8 +17,8 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // GET /filteredimage?image_url={{URL}}
   app.get( "/filteredimage", async (req, res) => {
     const { image_url: imageUrl } = req.query;
-    if ( !imageUrl ) {
-      res.status(400).send("Missing image_url query parameter");
+    if ( !imageUrl || !validator.isURL(imageUrl, { require_protocol: true })) {
+      res.status(400).send("Missing or invalid image_url query parameter");
     }
     const filteredImagePath = await filterImageFromURL(imageUrl);
     res.sendFile(filteredImagePath, () => {
